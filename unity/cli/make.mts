@@ -15,6 +15,15 @@ interface BuildOptions {
     backend: string
 }
 
+function useStripLib(CMAKE_BUILD_PATH: string, cmakeAddedLibraryName: string) {
+    mkdir('-p', `${CMAKE_BUILD_PATH}/strip_rename/`);
+    const nostripPath = `${CMAKE_BUILD_PATH}/strip_rename/lib${cmakeAddedLibraryName}_nostrip.so~`
+    const stripPath = `${CMAKE_BUILD_PATH}/strip_rename/lib${cmakeAddedLibraryName}.so`
+    mv(`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.so`, nostripPath)
+    mv(`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.stripped.so~`, stripPath)
+    return [stripPath, nostripPath]
+}
+
 //// 脚本 scripts
 const platformCompileConfig = {
     'android': {
@@ -26,13 +35,19 @@ const platformCompileConfig = {
                 const ABI = 'armeabi-v7a';
                 const TOOLCHAIN_NAME = 'arm-linux-androideabi-4.9';
 
-                assert.equal(0, exec(`cmake ${cmakeDArgs} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DJS_ENGINE=${options.backend} -DCMAKE_BUILD_TYPE=${options.config} -DANDROID_ABI=${ABI} -H. -B${CMAKE_BUILD_PATH} -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=${API} -DANDROID_TOOLCHAIN=clang -DANDROID_TOOLCHAIN_NAME=${TOOLCHAIN_NAME}`).code)
+                //避免在windows会优先选择Visual Studio编译导致编译失败的问题
+                let extraCmakeArgs = ''
+                if (process.platform == 'win32') {
+                    extraCmakeArgs = `-DCMAKE_MAKE_PROGRAM=${NDK}/prebuilt/windows-x86_64/bin/make.exe -G"MinGW Makefiles"`
+                }
+
+                assert.equal(0, exec(`cmake ${cmakeDArgs} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DJS_ENGINE=${options.backend} -DCMAKE_BUILD_TYPE=${options.config} -DANDROID_ABI=${ABI} -H. -B${CMAKE_BUILD_PATH} -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=${API} -DANDROID_TOOLCHAIN=clang -DANDROID_TOOLCHAIN_NAME=${TOOLCHAIN_NAME} ${extraCmakeArgs}`).code)
                 assert.equal(0, exec(`cmake --build ${CMAKE_BUILD_PATH} --config ${options.config}`).code)
 
                 if (existsSync(`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.a`))
                     return [`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.a`]
                 else
-                    return [`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.so`, `${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.stripped.so~`]
+                    return useStripLib(CMAKE_BUILD_PATH, cmakeAddedLibraryName)
             }
         },
         'arm64': {
@@ -43,13 +58,19 @@ const platformCompileConfig = {
                 const ABI = 'arm64-v8a';
                 const TOOLCHAIN_NAME = 'arm-linux-androideabi-clang';
 
-                assert.equal(0, exec(`cmake ${cmakeDArgs} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DJS_ENGINE=${options.backend} -DCMAKE_BUILD_TYPE=${options.config} -DANDROID_ABI=${ABI} -H. -B${CMAKE_BUILD_PATH} -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=${API} -DANDROID_TOOLCHAIN=clang -DANDROID_TOOLCHAIN_NAME=${TOOLCHAIN_NAME}`).code)
+                //避免在windows会优先选择Visual Studio编译导致编译失败的问题
+                let extraCmakeArgs = ''
+                if (process.platform == 'win32') {
+                    extraCmakeArgs = `-DCMAKE_MAKE_PROGRAM=${NDK}/prebuilt/windows-x86_64/bin/make.exe -G"MinGW Makefiles"`
+                }
+
+                assert.equal(0, exec(`cmake ${cmakeDArgs} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DJS_ENGINE=${options.backend} -DCMAKE_BUILD_TYPE=${options.config} -DANDROID_ABI=${ABI} -H. -B${CMAKE_BUILD_PATH} -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=${API} -DANDROID_TOOLCHAIN=clang -DANDROID_TOOLCHAIN_NAME=${TOOLCHAIN_NAME} ${extraCmakeArgs}`).code)
                 assert.equal(0, exec(`cmake --build ${CMAKE_BUILD_PATH} --config ${options.config}`).code)
 
                 if (existsSync(`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.a`))
                     return [`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.a`]
                 else
-                    return [`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.so`, `${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.stripped.so~`]
+                    return useStripLib(CMAKE_BUILD_PATH, cmakeAddedLibraryName)
             }
         },
         'x64': {
@@ -60,13 +81,19 @@ const platformCompileConfig = {
                 const ABI = 'x86_64';
                 const TOOLCHAIN_NAME = 'x86_64-4.9';
 
-                assert.equal(0, exec(`cmake ${cmakeDArgs} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DJS_ENGINE=${options.backend} -DCMAKE_BUILD_TYPE=${options.config} -DANDROID_ABI=${ABI} -H. -B${CMAKE_BUILD_PATH} -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=${API} -DANDROID_TOOLCHAIN=clang -DANDROID_TOOLCHAIN_NAME=${TOOLCHAIN_NAME}`).code)
+                //避免在windows会优先选择Visual Studio编译导致编译失败的问题
+                let extraCmakeArgs = ''
+                if (process.platform == 'win32') {
+                    extraCmakeArgs = `-DCMAKE_MAKE_PROGRAM=${NDK}/prebuilt/windows-x86_64/bin/make.exe -G"MinGW Makefiles"`
+                }
+
+                assert.equal(0, exec(`cmake ${cmakeDArgs} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DJS_ENGINE=${options.backend} -DCMAKE_BUILD_TYPE=${options.config} -DANDROID_ABI=${ABI} -H. -B${CMAKE_BUILD_PATH} -DCMAKE_TOOLCHAIN_FILE=${NDK}/build/cmake/android.toolchain.cmake -DANDROID_NATIVE_API_LEVEL=${API} -DANDROID_TOOLCHAIN=clang -DANDROID_TOOLCHAIN_NAME=${TOOLCHAIN_NAME} ${extraCmakeArgs}`).code)
                 assert.equal(0, exec(`cmake --build ${CMAKE_BUILD_PATH} --config ${options.config}`).code)
 
                 if (existsSync(`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.a`))
                     return [`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.a`]
                 else
-                    return [`${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.so`, `${CMAKE_BUILD_PATH}/lib${cmakeAddedLibraryName}.stripped.so~`]
+                    return useStripLib(CMAKE_BUILD_PATH, cmakeAddedLibraryName)
             }
         }
     },
@@ -171,7 +198,10 @@ async function runPuertsMake(cwd: string, options: BuildOptions) {
 
     const BuildConfig = (platformCompileConfig as any)[options.platform][options.arch];
     const CMAKE_BUILD_PATH = cwd + `/build_${options.platform}_${options.arch}_${options.backend}${options.config != "Release" ? "_debug" : ""}`
-    const OUTPUT_PATH = cwd + '/../Assets/core/upm/Plugins/' + BuildConfig.outputPluginPath;
+    let OUTPUT_PATH = cwd + '/../Assets/core/upm/Plugins/' + BuildConfig.outputPluginPath;
+    if (options.platform == 'android' || options.platform == 'ios') {
+        OUTPUT_PATH += '/' + options.config
+    }
     const BackendConfig = JSON.parse(readFileSync(cwd + `/cmake/backends.json`, 'utf-8'))[options.backend]?.config;
 
     if (BackendConfig?.skip?.[options.platform]?.[options.arch]) {
