@@ -107,9 +107,9 @@ private:
 #endif
 public:
 #ifdef MULT_BACKENDS
-    JSEngine(puerts::IPuertsPlugin* InPuertsPlugin, void* external_quickjs_runtime, void* external_quickjs_context);
+    JSEngine(puerts::IPuertsPlugin* InPuertsPlugin, void* external_quickjs_runtime, void* external_quickjs_context, bool jitless);
 #else
-    JSEngine(void* external_quickjs_runtime, void* external_quickjs_context);
+    JSEngine(void* external_quickjs_runtime, void* external_quickjs_context, bool jitless);
 #endif
 
     ~JSEngine();
