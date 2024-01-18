@@ -15,7 +15,7 @@ class V8Plugin : public puerts::IPuertsPlugin
 {
 public:
     V8Plugin(void* external_quickjs_runtime, void* external_quickjs_context)
-        : jsEngine(this, external_quickjs_runtime, external_quickjs_context)
+        : jsEngine(this, external_quickjs_runtime, external_quickjs_context, false)
     {
     }
     

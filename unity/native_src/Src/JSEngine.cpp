@@ -92,13 +92,30 @@ namespace PUERTS_NAMESPACE
     }
 
 #ifdef MULT_BACKENDS
-    JSEngine::JSEngine(puerts::IPuertsPlugin* InPuertsPlugin, void* external_quickjs_runtime, void* external_quickjs_context)
+    JSEngine::JSEngine(puerts::IPuertsPlugin* InPuertsPlugin, void* external_quickjs_runtime, void* external_quickjs_context, bool jitless)
 #else
-    JSEngine::JSEngine(void* external_quickjs_runtime, void* external_quickjs_context)
+    JSEngine::JSEngine(void* external_quickjs_runtime, void* external_quickjs_context, bool jitless)
 #endif
     {
         GeneralDestructor = nullptr;
         FBackendEnv::GlobalPrepare();
+
+        std::string Flags = "--no-harmony-top-level-await --stack_size=856";
+#if PUERTS_DEBUG
+        Flags += " --expose-gc";
+#if PLATFORM_MAC
+        Flags += " --jitless --no-expose-wasm";
+#endif
+#endif
+#if PLATFORM_IOS
+        Flags += " --jitless --no-expose-wasm";
+#else
+        if(jitless)
+        {
+            Flags += " --jitless ";
+        }
+#endif
+        v8::V8::SetFlagsFromString(Flags.c_str(), static_cast<int>(Flags.size()));
 
         BackendEnv.Initialize(external_quickjs_runtime, external_quickjs_context);
         MainIsolate = BackendEnv.MainIsolate;
