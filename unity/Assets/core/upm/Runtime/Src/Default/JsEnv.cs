@@ -79,21 +79,21 @@ namespace Puerts
         internal Action OnDispose;
 
         public JsEnv() 
-            : this(new DefaultLoader(), -1, IntPtr.Zero, IntPtr.Zero)
+            : this(new DefaultLoader(), -1, IntPtr.Zero, IntPtr.Zero, false)
         {
         }
 
-        public JsEnv(ILoader loader, int debugPort = -1)
-             : this(loader, debugPort, IntPtr.Zero, IntPtr.Zero)
+        public JsEnv(ILoader loader, int debugPort = -1, bool jitless = false)
+             : this(loader, debugPort, IntPtr.Zero, IntPtr.Zero, jitless)
         {
         }
 
-        public JsEnv(ILoader loader, IntPtr externalRuntime, IntPtr externalContext)
-            : this(loader, -1, externalRuntime, externalContext)
+        public JsEnv(ILoader loader, IntPtr externalRuntime, IntPtr externalContext, bool jitless)
+            : this(loader, -1, externalRuntime, externalContext, jitless)
         {
         }
 
-        public JsEnv(ILoader loader, int debugPort, IntPtr externalRuntime, IntPtr externalContext)
+        public JsEnv(ILoader loader, int debugPort, IntPtr externalRuntime, IntPtr externalContext, bool jitless)
         {
             const int libVersionExpect = 32;
             int libVersion = PuertsDLL.GetApiLevel();
