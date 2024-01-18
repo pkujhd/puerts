@@ -87,7 +87,7 @@ namespace puerts
         LastExceptionInfo = FV8Utils::ExceptionToString(MainIsolate, Exception);
     }
 
-    JSEngine::JSEngine(void* external_quickjs_runtime, void* external_quickjs_context)
+    JSEngine::JSEngine(void* external_quickjs_runtime, void* external_quickjs_context, bool jitless)
     {
         GeneralDestructor = nullptr;
         BackendEnv::GlobalPrepare();
@@ -101,6 +101,11 @@ namespace puerts
 #endif
 #if PLATFORM_IOS
         Flags += " --jitless --no-expose-wasm";
+#else
+        if(jitless)
+        {
+            Flags += " --jitless ";
+        }
 #endif
         v8::V8::SetFlagsFromString(Flags.c_str(), static_cast<int>(Flags.size()));
 

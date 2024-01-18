@@ -43,16 +43,16 @@ V8_EXPORT int GetLibBackend()
 #endif
 }
 
-V8_EXPORT v8::Isolate *CreateJSEngine()
+V8_EXPORT v8::Isolate *CreateJSEngine(bool jitless)
 {
-    auto JsEngine = new JSEngine(nullptr, nullptr);
+    auto JsEngine = new JSEngine(nullptr, nullptr, jitless);
     return JsEngine->MainIsolate;
 }
 
-V8_EXPORT v8::Isolate *CreateJSEngineWithExternalEnv(void* external_quickjs_runtime, void* external_quickjs_context)
+V8_EXPORT v8::Isolate *CreateJSEngineWithExternalEnv(void* external_quickjs_runtime, void* external_quickjs_context, bool jitless)
 {
 #if WITH_QUICKJS
-    auto JsEngine = new JSEngine(external_quickjs_runtime, external_quickjs_context);
+    auto JsEngine = new JSEngine(external_quickjs_runtime, external_quickjs_context, jitless);
     return JsEngine->MainIsolate;
 #else
     return nullptr;
@@ -974,6 +974,48 @@ V8_EXPORT void LogicTick(v8::Isolate *Isolate)
 }
 
 //-------------------------- end debug --------------------------
+
+
+V8_EXPORT void GetHeapStatisticsToBuf(v8::Isolate *Isolate, char* buf, int bufLen)
+{
+#ifndef WITH_QUICKJS
+    v8::HeapStatistics heap;
+
+    v8::Isolate::Scope IsolateScope(Isolate);
+    v8::HandleScope HandleScope(Isolate);
+    v8::Local<v8::Context> Context = Isolate->GetCurrentContext();
+    v8::Context::Scope ContextScope(Context);
+
+    Isolate->GetHeapStatistics(&heap);
+
+    snprintf(buf, bufLen, "{\"total_heap_size\":%zd,\
+\"total_heap_size_executable\":%zd,\
+\"total_physical_size\":%zd,\
+\"total_available_size\":%zd,\
+\"total_global_handles_size\":%zd,\
+\"used_global_handles_size\":%zd,\
+\"used_heap_size\":%zd,\
+\"heap_size_limit\":%zd,\
+\"malloced_memory\":%zd,\
+\"external_memory\":%zd,\
+\"peak_malloced_memory\":%zd,\
+\"number_of_native_contexts\":%zd,\
+\"number_of_detached_contexts\":%zd}",  
+        heap.total_heap_size(),
+        heap.total_heap_size_executable(),
+        heap.total_physical_size(),
+        heap.total_available_size(),
+        heap.total_global_handles_size(),
+        heap.used_global_handles_size(),
+        heap.used_heap_size(),
+        heap.heap_size_limit(),
+        heap.malloced_memory(),
+        heap.external_memory(),
+        heap.peak_malloced_memory(),
+        heap.number_of_native_contexts(),
+        heap.number_of_detached_contexts());
+#endif    // !WITH_QUICKJS
+}
 
 #ifdef __cplusplus
 }
