@@ -113,6 +113,8 @@ namespace Puerts.Editor
                         wrapperInfoMap[type] = staticWrapperInfo;
                     }
 
+                    var classConditionalCompilationMap = Configure.GetClassConditionalCompilationMap();
+
                     foreach (var item in wrapperInfoMap)
                     {
                         var staticWrapperInfo = item.Value;
@@ -135,7 +137,18 @@ namespace Puerts.Editor
                         string fileContent = wrapRender(staticWrapperInfo);
                         using (StreamWriter textWriter = new StreamWriter(filePath, false, Encoding.UTF8))
                         {
-                            textWriter.Write(fileContent);
+                            string conditionCompilation = null;
+                            if(classConditionalCompilationMap != null && classConditionalCompilationMap.TryGetValue(item.Key, out conditionCompilation))
+                            {
+                                textWriter.Write($"#if {conditionCompilation}\n");
+                                textWriter.Write(fileContent);
+                                textWriter.Write("#endif\n");
+                            }
+                            else
+                            {
+                                textWriter.Write(fileContent);
+                            }
+
                             textWriter.Flush();
                         }
                     }
@@ -177,7 +190,19 @@ namespace Puerts.Editor
                 }
                 
                 var RegisterInfos = RegisterInfoGenerator.GetRegisterInfos(genTypes, blittableCopyTypes);
-
+                var classConditionalCompilationMap = Configure.GetClassConditionalCompilationMap();
+                if(classConditionalCompilationMap != null)
+                {
+                    foreach (var item in RegisterInfos)
+                    {
+                        string cc;
+                        if(classConditionalCompilationMap.TryGetValue(item.Type, out cc))
+                        {
+                            item.ConditionalCompilationStr = cc;
+                        }
+                    }
+                }
+               
                 if (loader == null)
                 {
                     loader = new DefaultLoader();

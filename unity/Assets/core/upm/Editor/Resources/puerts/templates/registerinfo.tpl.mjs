@@ -21,6 +21,7 @@ namespace PuertsStaticWrap
     public static class PuerRegisterInfo_Gen
     {
         ${FOR(typeRegisterInfos, item => `
+        ${item.ConditionalCompilationStr?'#if '+item.ConditionalCompilationStr:''}
         public static RegisterInfo GetRegisterInfo_${item.WrapperName}() 
         {
             return new RegisterInfo 
@@ -41,6 +42,7 @@ namespace PuertsStaticWrap
                 }
             };
         }
+        ${item.ConditionalCompilationStr?"#endif":''}
         `)}
 
         public static void AddRegisterInfoGetterIntoJsEnv(JsEnv jsEnv)
@@ -53,6 +55,12 @@ namespace PuertsStaticWrap
 #if !EXPERIMENTAL_IL2CPP_PUERTS
                 ${item.BlittableCopy ? item.WrapperName + ".InitBlittableCopy(jsEnv);": ""}                    
 #endif`
+                }
+                if(item.ConditionalCompilationStr)
+                {
+                    ret = `
+                #if ${item.ConditionalCompilationStr}${ret}
+                #endif`
                 }
                 return ret;
             })}

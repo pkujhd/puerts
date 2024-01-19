@@ -37,6 +37,8 @@ namespace Puerts.Editor
             public string WrapperName;
 
             public new List<MemberRegisterInfoForGenerate> Members;
+
+            public string ConditionalCompilationStr;
         }
         internal class RegisterInfoGenerator
         {

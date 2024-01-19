@@ -58,6 +58,12 @@ namespace Puerts
     {
     }
 
+    //代码生成目录
+    [AttributeUsage(AttributeTargets.Property)]
+    public class ClassConditionalCompilationAttribute : Attribute
+    {
+    }
+
     public enum FilterAction
     {
         BindingMode = 1,
@@ -156,5 +162,36 @@ namespace Puerts
             return UnityEngine.Application.dataPath + "/Gen/";
         }
 #endif
+
+        private static T GetAttributeProperty<A, T>() where A : class where T : class
+        {
+            var types = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                        where !(assembly.ManifestModule is System.Reflection.Emit.ModuleBuilder)
+                        from type in assembly.GetTypes()
+                        where type.IsDefined(typeof(ConfigureAttribute), false)
+                        select type;
+            foreach (var type in types)
+            {
+
+                PropertyInfo[] props = type.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                foreach (PropertyInfo prop in props)
+                {
+                    object[] attrs = prop.GetCustomAttributes(true);
+                    foreach (object attr in attrs)
+                    {
+                        A outAttr = attr as A;
+                        if (outAttr != null)
+                        {
+                            return prop.GetValue(null, null) as T;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        public static Dictionary<Type,string> GetClassConditionalCompilationMap()
+        {
+            return GetAttributeProperty<ClassConditionalCompilationAttribute, Dictionary<Type, string>>();
+        }
     }
 }
