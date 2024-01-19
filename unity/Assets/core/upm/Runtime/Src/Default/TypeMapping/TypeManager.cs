@@ -257,6 +257,52 @@ namespace Puerts
             }
             return typeMap[typeId];
         }
+
+        public bool AddPrivateMethod(IntPtr isolate, Type type, string methodName)
+        {
+            int typeId = GetTypeId(isolate, type);
+            BindingFlags flag = BindingFlags.DeclaredOnly | BindingFlags.Instance | 
+                        BindingFlags.Static | BindingFlags.NonPublic;
+            MethodInfo[] methods = Puerts.Utils.GetMethodAndOverrideMethod(type, flag);
+            List<OverloadReflectionWrap> overloadWraps = new List<OverloadReflectionWrap>();
+            bool IsStatic = false;
+            for ( int i = 0; i < methods.Count(); i++ ) 
+            {
+                MethodInfo method = methods[i];
+                if ( method.Name == methodName ) {       
+                    IsStatic = method.IsStatic;
+                    if (method.IsGenericMethodDefinition)
+                    {
+                        /*
+                        TODO if open it, it can not register template member function, when understand mechanism, fix it.
+                        */
+                        // if (!Utils.IsSupportedMethod(method))
+                        // {
+                        //     continue;
+                        // }
+                        #if !UNITY_EDITOR && ENABLE_IL2CPP && !PUERTS_REFLECT_ALL_EXTENSION
+                            continue;
+                        #endif
+                        var genericArguments = method.GetGenericArguments();
+                        var constraintedArgumentTypes = new Type[genericArguments.Length];
+                        for (int j = 0; j < genericArguments.Length; j++)
+                        {
+                            constraintedArgumentTypes[j] = genericArguments[j].BaseType;
+                        }
+                        method = method.MakeGenericMethod(constraintedArgumentTypes);
+                    }
+                    overloadWraps.Add(new OverloadReflectionWrap(method, jsEnv));
+                }
+            }
+            if ( overloadWraps.Count() == 0 ) {
+                return false;
+            }
+            MethodReflectionWrap methodReflectionWrap = new MethodReflectionWrap(methodName, overloadWraps);
+            
+            V8FunctionCallback callbackWrap = new V8FunctionCallback(StaticCallbacks.JsEnvCallbackWrap);
+            return PuertsDLL.RegisterFunction(jsEnv.isolate, typeId, methodName, IsStatic, callbackWrap, jsEnv.AddCallback(methodReflectionWrap.Invoke));
+        }
+
     }
 }
 
