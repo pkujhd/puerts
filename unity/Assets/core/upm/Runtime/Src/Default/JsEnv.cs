@@ -163,6 +163,7 @@ namespace Puerts
             PuertsDLL.SetGlobalFunction(isolate, "__tgjsLoadType", StaticCallbacks.JsEnvCallbackWrap, AddCallback(LoadType));
             PuertsDLL.SetGlobalFunction(isolate, "__tgjsGetNestedTypes", StaticCallbacks.JsEnvCallbackWrap, AddCallback(GetNestedTypes));
             PuertsDLL.SetGlobalFunction(isolate, "__tgjsGetLoader", StaticCallbacks.JsEnvCallbackWrap, AddCallback(GetLoader));
+            PuertsDLL.SetGlobalFunction(isolate, "__tgjsAddPrivateMethod", StaticCallbacks.JsEnvCallbackWrap, AddCallback(AddPrivateMethod));
             
             //可以DISABLE掉自动注册，通过手动调用PuertsStaticWrap.AutoStaticCodeRegister.Register(jsEnv)来注册
 #if !DISABLE_AUTO_REGISTER
@@ -576,6 +577,27 @@ namespace Puerts
             }
         }
 
+        public void AddPrivateMethod(IntPtr isolate, IntPtr info, IntPtr self, int paramLen)
+        {
+            try
+            {
+                if (paramLen < 2) {
+                    throw new Exception("invalid arguments length");
+                }
+                string className = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 0), false);
+                Type type = TypeRegister.GetType(className);
+                if ( type == null ) {
+                    PuertsDLL.ReturnBoolean(isolate, info, false);
+                } else {
+                    string methodName = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 1), false);
+                    PuertsDLL.ReturnBoolean(isolate, info, TypeRegister.AddPrivateMethod(isolate, type, methodName));
+                }
+            }
+            catch(Exception e)
+            {
+                PuertsDLL.ThrowException(isolate, "AddPrivateMethod throw c# exception:" + e.Message + ",stack:" + e.StackTrace);
+            }
+        }
         void LoadType(IntPtr isolate, IntPtr info, IntPtr self, int paramLen)
         {
             try

@@ -17,6 +17,8 @@ puer.getNestedTypes = global.__tgjsGetNestedTypes;
 delete global.__tgjsGetNestedTypes;
 puer.getGenericMethod = global.__tgjsGetGenericMethod;
 delete global.__tgjsGetGenericMethod;
+puerts.addPrivateMethod = global.__tgjsAddPrivateMethod;
+delete global.__tgjsAddPrivateMethod;
 
 puer.evalScript = global.__tgjsEvalScript || function (script, debugPath) {
     return eval(script);

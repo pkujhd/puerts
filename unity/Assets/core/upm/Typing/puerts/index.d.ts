@@ -15,6 +15,8 @@ declare namespace puer {
 
     function $typeof(x: new (...args: any[]) => any): CS.System.Type;
 
+    function $addPrivateMethod(className: string, methodName: string) : boolean;
+
     function $extension(c: Function, e: Function): void;
 
     function on(eventType: string, listener: Function, prepend?: boolean): void;

@@ -188,6 +188,15 @@ function makeGenericMethod(cls, methodName, ...genericArgs) {
     }
 }
 
+function makeAddPrivateMethod(className, methodName) {
+    if (typeof className == 'string' && typeof methodName == 'string') {
+        return puer.addPrivateMethod(className, methodName);
+        
+    } else {
+        throw new Error("invalid arguments for makeAddPrivateMethod");
+    }
+}
+
 function getType(cls) {
     return cls.__p_innerType;
 }
@@ -231,6 +240,7 @@ puer.$set = setref;
 puer.$promise = taskToPromise;
 puer.$generic = makeGeneric;
 puer.$genericMethod = makeGenericMethod;
+puerts.$addPrivateMethod = makeAddPrivateMethod;
 puer.$typeof = getType;
 puer.$extension = (cls, extension) => { 
     typeof console != 'undefined' && console.warn(`deprecated! if you already generate static wrap for ${cls} and ${extension}, you are no need to invoke $extension`); 
