@@ -19,6 +19,8 @@ global.__tgjsGetNestedTypes = undefined;
 global.__tgjsGetGenericMethod = undefined;
 puer.createFunction = global.createFunction;
 global.createFunction = undefined;
+puerts.addPrivateMethod = global.__tgjsAddPrivateMethod;
+delete global.__tgjsAddPrivateMethod;
 
 puer.getGenericMethod = function(csType, methodName, ...genericArgs) {
     if (!csType || (typeof csType.GetMember != 'function')) {
