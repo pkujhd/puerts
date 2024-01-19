@@ -69,6 +69,9 @@ namespace Puerts
 
         private JSFunctionCallback GenFieldGetter(Type type, FieldInfo field)
         {
+#if UNITY_EDITOR            
+            JsEnv.LogReflectWrap(definitionType, memberName);
+#endif
             var translateFunc = jsEnv.GeneralSetterManager.GetTranslateFunc(field.FieldType);
             if (field.IsStatic)
             {
@@ -89,6 +92,9 @@ namespace Puerts
 
         private JSFunctionCallback GenFieldSetter(Type type, FieldInfo field)
         {
+#if UNITY_EDITOR
+            JsEnv.LogReflectWrap(definitionType, memberName);
+#endif
             var translateFunc = jsEnv.GeneralGetterManager.GetTranslateFunc(field.FieldType);
             var typeMask = GeneralGetterManager.GetJsTypeMask(field.FieldType);
             if (field.IsStatic)
@@ -165,6 +171,9 @@ namespace Puerts
                     reflectionWrap = new MethodReflectionWrap(memberName, new List<OverloadReflectionWrap>() {
                         new OverloadReflectionWrap(xetMethodInfo, jsEnv)
                     });
+#if UNITY_EDITOR
+                    JsEnv.LogReflectWrap(definitionType, memberName);
+#endif
                 }
 
                 reflectionWrap.Invoke(isolate, info, self, argumentsLen);
@@ -192,6 +201,9 @@ namespace Puerts
                         overload.Select(m => new OverloadReflectionWrap(m, jsEnv, false)).ToList()
                     );
 
+#if UNITY_EDITOR
+                    JsEnv.LogReflectWrap(definitionType, memberName);
+#endif
                 }
 
                 reflectionWrap.Invoke(isolate, info, self, argumentsLen);
