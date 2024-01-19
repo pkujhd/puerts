@@ -949,6 +949,44 @@ namespace Puerts
                 pendingRemovedJsObjList.Clear();
             }
         }
+
+#if UNITY_EDITOR
+        private static Dictionary<Type, HashSet<string>> PuertsReflectWhiteList = new Dictionary<Type, HashSet<string>>();
+        public static void AddPuertsReflectWhiteMember(Type type, List<string> set)
+        {
+            PuertsReflectWhiteList[type] = new HashSet<string>(set);
+        }
+        private static bool InPuertsReflectWhiteList(Type type, string member)
+        {
+            HashSet<string> set;
+            if (PuertsReflectWhiteList.TryGetValue(type, out set))
+            {
+                return set.Contains(member);
+            }
+            return false;
+        }
+        public static void LogReflectWrap(Type type, string memberName)
+        {
+            if (!UnityEngine.Application.isPlaying)
+            {
+                return;
+            }
+            if (typeof(Type).IsAssignableFrom(type)
+                || typeof(System.ValueType).IsAssignableFrom(type)
+                || typeof(System.MulticastDelegate).IsAssignableFrom(type)
+                || typeof(System.Reflection.MemberInfo).IsAssignableFrom(type)
+                )
+            {
+                return;
+            }
+            if (InPuertsReflectWhiteList(type, memberName))
+            {
+                return;
+            }
+            JsEnv.jsEnvs[0].Eval($"console.error(\"[puerts reflect] type:{type.FullName} member:{memberName}\")");
+        }
+#endif
+
     }
 }
 

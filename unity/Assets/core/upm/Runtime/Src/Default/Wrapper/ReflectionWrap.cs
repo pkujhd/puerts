@@ -316,6 +316,9 @@ namespace Puerts
                 {
                     args = new object[] { jsEnv.GeneralGetterManager.GetSelf(jsEnv.Idx, jsCallInfo.Self) }.Concat(args).ToArray();
                 }
+#if UNITY_EDITOR
+                JsEnv.LogReflectWrap(methodInfo.DeclaringType, methodInfo.Name);
+#endif
                 object ret = methodInfo.Invoke(target, args);
                 parameters.FillByRefParameters(jsCallInfo, args);
                 resultSetter(jsEnv.Idx, jsCallInfo.Isolate, NativeValueApi.SetValueToResult, jsCallInfo.Info, ret);
@@ -330,8 +333,14 @@ namespace Puerts
         {
             if (constructorInfo == null && type != null) 
             {
+#if UNITY_EDITOR
+                JsEnv.LogReflectWrap(type, "Construct");
+#endif
                 return Activator.CreateInstance(type);
             }
+#if UNITY_EDITOR
+            JsEnv.LogReflectWrap(constructorInfo.GetType(), "Construct");
+#endif
             return constructorInfo.Invoke(parameters.GetArguments(callInfo));
         }
     }
