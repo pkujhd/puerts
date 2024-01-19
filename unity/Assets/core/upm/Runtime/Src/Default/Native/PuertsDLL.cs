@@ -1,4 +1,4 @@
-﻿/*
+/*
 * Tencent is pleased to support the open source community by making Puerts available.
 * Copyright (C) 2020 Tencent.  All rights reserved.
 * Puerts is licensed under the BSD 3-Clause License, except for the third-party components listed in the file 'LICENSE' which may be subject to their corresponding license terms.
@@ -309,6 +309,8 @@ namespace Puerts
         [DllImport(DLLNAME, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ReturnString")]
         public static extern void __ReturnString(IntPtr isolate, IntPtr info, string str);
 #endif
+        [DllImport(DLLNAME, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ReturnString")]
+        public static extern void ReturnStringByBytes(IntPtr isolate, IntPtr info, byte[] str);
 
         public static void ReturnString(IntPtr isolate, IntPtr info, string str)
         {
