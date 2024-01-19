@@ -22,6 +22,8 @@ namespace Puerts
 
     public class JsEnv : IDisposable
     {
+        public static bool SupportCJS = false;
+
         public static List<JsEnv> jsEnvs = new List<JsEnv>();
 
         internal readonly int Idx;
@@ -225,6 +227,12 @@ namespace Puerts
                 {
                     ExecuteModule("puerts/nodepatch.mjs");
                 }
+
+                if(SupportCJS)
+                {
+                    ExecuteModule("puerts/cjsload.mjs");
+                    ExecuteModule("puerts/modular.mjs");
+                }                
 
 #if UNITY_EDITOR
                 if (OnJsEnvCreate != null) 
