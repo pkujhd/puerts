@@ -19,6 +19,7 @@ namespace Puerts
     {
         bool FileExists(string filepath);
         string ReadFile(string filepath, out string debugpath);
+        byte[] ReadFileBytes(string filepath, out string debugpath);
     }
     public interface IModuleChecker
     {
@@ -125,6 +126,25 @@ namespace Puerts
 #endif
         }
 
+#if ENABLE_IL2CPP
+        [UnityEngine.Scripting.Preserve]
+#endif
+        public byte[] ReadFileBytes(string filepath, out string debugpath)
+        {
+#if PUERTS_GENERAL
+            debugpath = Path.Combine(root, filepath);
+            return File.ReadAllBytes(debugpath);
+#else 
+            string pathToUse = this.PathToUse(filepath);
+            UnityEngine.TextAsset file = (UnityEngine.TextAsset)UnityEngine.Resources.Load(pathToUse);
+
+            debugpath = System.IO.Path.Combine(root, filepath);
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            debugpath = debugpath.Replace("/", "\\");
+#endif
+            return file == null ? null : file.bytes;
+#endif
+        }
         
         public bool IsESM(string filepath) 
         {

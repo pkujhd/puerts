@@ -33,8 +33,8 @@ delete global.__tgjsGetLoader;
 
 function loadFile(path) {
     let debugPath = [];
-    var content = loader.ReadFile(path, debugPath);
-    // var content = __LoadJsCodeBytes(path, debugPath);    
+    // var content = loader.ReadFile(path, debugPath);
+    var content = __LoadJsCodeBytes(path, debugPath);    
     return { content: content, debugPath: debugPath[0] };
 }
 puer.loadFile = loadFile;

@@ -303,6 +303,8 @@ namespace Puerts
         [DllImport(DLLNAME, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ReturnString")]
         public static extern void __ReturnString(IntPtr isolate, IntPtr info, string str);
 #endif
+        [DllImport(DLLNAME, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ReturnString")]
+        public static extern void ReturnStringByBytes(IntPtr isolate, IntPtr info, byte[] str);
 
         public static void ReturnString(IntPtr isolate, IntPtr info, string str)
         {

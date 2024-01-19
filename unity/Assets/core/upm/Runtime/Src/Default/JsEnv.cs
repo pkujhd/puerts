@@ -164,7 +164,8 @@ namespace Puerts
             PuertsDLL.SetGlobalFunction(isolate, "__tgjsGetNestedTypes", StaticCallbacks.JsEnvCallbackWrap, AddCallback(GetNestedTypes));
             PuertsDLL.SetGlobalFunction(isolate, "__tgjsGetLoader", StaticCallbacks.JsEnvCallbackWrap, AddCallback(GetLoader));
             PuertsDLL.SetGlobalFunction(isolate, "__tgjsAddPrivateMethod", StaticCallbacks.JsEnvCallbackWrap, AddCallback(AddPrivateMethod));
-            
+            PuertsDLL.SetGlobalFunction(isolate, "__LoadJsCodeBytes", StaticCallbacks.JsEnvCallbackWrap, AddCallback(LoadJsCodeBytes));
+
             //可以DISABLE掉自动注册，通过手动调用PuertsStaticWrap.AutoStaticCodeRegister.Register(jsEnv)来注册
 #if !DISABLE_AUTO_REGISTER
             const string AutoStaticCodeRegisterClassName = "PuertsStaticWrap.PuerRegisterInfo_Gen";
@@ -446,6 +447,27 @@ namespace Puerts
             GeneralSetterManager.AnyTranslator(Idx, isolate, NativeValueApi.SetValueToResult, info, loader);
         }
 
+        static byte[] JsCodeBuffer = new byte[1024];
+
+        public static void InitJsCodeBuffer(int bufferSize)
+        {
+            JsCodeBuffer = new byte[bufferSize];
+        }
+        void LoadJsCodeBytes(IntPtr isolate, IntPtr info, IntPtr self, int paramLen)
+        {
+            var identifer = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 0), false);
+            var debugPathValue = PuertsDLL.GetArgumentValue(info, 1);
+            string debugPath;
+            var code = this.loader.ReadFileBytes(identifer, out debugPath);
+            PuertsDLL.SetStringToOutValue(isolate, debugPathValue, debugPath);
+            if (JsCodeBuffer.Length < code.Length + 1)
+            {
+                JsCodeBuffer = new byte[code.Length + 1];
+            }
+            Buffer.BlockCopy(code, 0, JsCodeBuffer, 0, code.Length);
+            JsCodeBuffer[code.Length] = 0;
+            PuertsDLL.ReturnStringByBytes(isolate, info, JsCodeBuffer);
+        }
         public void RegisterGeneralGetSet(Type type, GeneralGetter getter, GeneralSetter setter)
         {
             if (getter != null) GeneralGetterManager.RegisterGetter(type, getter);
