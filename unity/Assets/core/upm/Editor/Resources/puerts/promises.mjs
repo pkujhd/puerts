@@ -52,11 +52,11 @@ function unhandledRejection(promise, reason) {
 function unhandledRejectionWarning(reason) {
     try {
         if (reason instanceof Error) {
-            console.warn('unhandledRejection', reason, reason.stack);
+            console.error('unhandledRejection', reason, reason.stack);
         } else {
-            console.warn('unhandledRejection', reason);
+            console.error('unhandledRejection', reason);
         }
-    } catch {}
+    } catch { }
 }
 
 function handlerAddedAfterReject(promise) {

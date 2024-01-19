@@ -7,4 +7,4 @@
 
 var global = global || globalThis || (function () { return this; }());
 
-global.process = { env: { NODE_ENV: 'development' } };
+global.process = { env: { NODE_ENV: 'production' } };
