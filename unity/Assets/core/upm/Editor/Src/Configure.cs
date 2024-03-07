@@ -73,6 +73,8 @@ namespace Puerts
 
     public static class Configure
     {
+        public static bool EnableSimplifyWrapFileName = true;
+
         public static Dictionary<string, List<KeyValuePair<object, int>>> GetConfigureByTags(List<string> tags)
         {
             var types = from assembly in AppDomain.CurrentDomain.GetAssemblies()
