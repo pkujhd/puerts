@@ -120,7 +120,14 @@ namespace Puerts.Editor
                         var staticWrapperInfo = item.Value;
                         var wrapClassName = staticWrapperInfo.WrapClassName;
 
-                        string filePath = saveTo + staticWrapperInfo.WrapClassName + ".cs";
+                        string fileName = staticWrapperInfo.WrapClassName;
+                        if(Configure.EnableSimplifyWrapFileName)
+                        {
+                            fileName = fileName.Replace("System_Collections_Generic_Dictionary", "SysDict").
+                                                Replace("System_Collections_Generic_List", "SysList");
+                        }
+
+                        string filePath = saveTo + fileName + ".cs";
 
                         int uniqueId = 1;
                         if (makeFileUniqueMap.ContainsKey(filePath.ToLower()) && staticWrapperInfo.IsGenericWrapper)
@@ -129,7 +136,7 @@ namespace Puerts.Editor
                         }
                         while (makeFileUniqueMap.ContainsKey(filePath.ToLower()))
                         {
-                            filePath = saveTo + staticWrapperInfo.WrapClassName + "_" + uniqueId + ".cs";
+                            filePath = saveTo + fileName + "_" + uniqueId + ".cs";
                             uniqueId++;
                         }
                         makeFileUniqueMap.Add(filePath.ToLower(), true);
