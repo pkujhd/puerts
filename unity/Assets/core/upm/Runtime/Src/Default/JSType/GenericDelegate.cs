@@ -118,19 +118,22 @@ namespace Puerts
             return genericDelegate;
         }
 
-        public void RemoveGenericDelegate(IntPtr ptr) 
+        public void RemoveGenericDelegate(IntPtr ptr)
         {
             WeakReference maybeOne;
-            if (nativePtrToGenericDelegate.TryGetValue(ptr, out maybeOne) && !maybeOne.IsAlive) {
+            if (nativePtrToGenericDelegate.TryGetValue(ptr, out maybeOne) && !maybeOne.IsAlive)
+            {
                 nativePtrToGenericDelegate.Remove(ptr);
             }
         }
 
         public void CloseAll()
         {
-            foreach (var referKV in nativePtrToGenericDelegate) {
+            foreach (var referKV in nativePtrToGenericDelegate)
+            {
                 var refer = referKV.Value;
-                if (refer.IsAlive) {
+                if (refer.IsAlive)
+                {
                     (refer.Target as GenericDelegate).Close();
                 }
             }
@@ -331,7 +334,7 @@ namespace Puerts
         private Delegate firstValue = null;
         private Dictionary<Type, Delegate> bindTo = null;
 
-        internal IntPtr getJsFuncPtr() 
+        internal IntPtr getJsFuncPtr()
         {
             return nativeJsFuncPtr;
         }
@@ -348,7 +351,7 @@ namespace Puerts
         {
             nativeJsFuncPtr = IntPtr.Zero;
             // it should set to null, otherwise it will prevent JsEnv to be GC.
-            jsEnv = null; 
+            jsEnv = null;
         }
 
         private void CheckLiveness(bool shouldThrow = true)
@@ -356,14 +359,14 @@ namespace Puerts
             if (nativeJsFuncPtr == IntPtr.Zero)
             {
                 if (shouldThrow) throw new Exception("JsEnv has been disposed");
-            } 
-            else 
+            }
+            else
             {
                 jsEnv.CheckLiveness();
             }
         }
 
-        ~GenericDelegate() 
+        ~GenericDelegate()
         {
             if (nativeJsFuncPtr == IntPtr.Zero) return;
 #if THREAD_SAFE
@@ -454,7 +457,7 @@ namespace Puerts
 #endif
         }
 
-        public void Action<T1, T2>(T1 p1, T2 p2) 
+        public void Action<T1, T2>(T1 p1, T2 p2)
         {
             CheckLiveness();
 #if THREAD_SAFE
