@@ -32,9 +32,10 @@ namespace Puerts
 
         internal readonly GeneralSetterManager GeneralSetterManager;
 
-        internal TypeManager TypeRegister 
+        internal TypeManager TypeRegister
         {
-            get {
+            get
+            {
 #if !PUERTS_GENERAL
                 UnityEngine.Debug.LogWarning("use JsEnv.TypeManager instead");
 #endif
@@ -54,8 +55,10 @@ namespace Puerts
 
         internal IntPtr isolate;
 
-        public IntPtr Isolate {
-            get {
+        public IntPtr Isolate
+        {
+            get
+            {
                 return isolate;
             }
         }
@@ -80,7 +83,7 @@ namespace Puerts
 
         internal Action OnDispose;
 
-        public JsEnv() 
+        public JsEnv()
             : this(new DefaultLoader(), -1, IntPtr.Zero, IntPtr.Zero, false)
         {
         }
@@ -106,7 +109,7 @@ namespace Puerts
             // PuertsDLL.SetLogCallback(LogCallback, LogWarningCallback, LogErrorCallback);
             this.loader = loader;
             this.loaderCanCheckESM = loader is IModuleChecker;
-            
+
             if (externalRuntime != IntPtr.Zero)
             {
                 isolate = PuertsDLL.CreateJSEngineWithExternalEnv(externalRuntime, externalContext);
@@ -115,7 +118,7 @@ namespace Puerts
             {
                 isolate = PuertsDLL.CreateJSEngine();
             }
-            
+
             if (isolate == IntPtr.Zero)
             {
                 throw new InvalidProgramException("create jsengine fail");
@@ -147,7 +150,7 @@ namespace Puerts
             GeneralGetterManager = new GeneralGetterManager();
             GeneralSetterManager = new GeneralSetterManager();
 
-            if (PuertsDLL.GetLibBackend() == 0) 
+            if (PuertsDLL.GetLibBackend() == 0)
                 Backend = new BackendV8(this);
             else if (PuertsDLL.GetLibBackend() == 1)
                 Backend = new BackendNodeJS(this);
@@ -205,23 +208,23 @@ namespace Puerts
             {
                 PuertsDLL.CreateInspector(isolate, debugPort);
             }
-            try 
+            try
             {
                 ExecuteModule("puerts/init.mjs");
                 ExecuteModule("puerts/log.mjs");
                 ExecuteModule("puerts/csharp.mjs");
                 ExecuteModule("puerts/events.mjs");
-                
-                if (externalContext == IntPtr.Zero || externalRuntime == IntPtr.Zero) 
+
+                if (externalContext == IntPtr.Zero || externalRuntime == IntPtr.Zero)
                 {
                     ExecuteModule("puerts/timer.mjs");
                     ExecuteModule("puerts/promises.mjs");
                 }
-                else 
+                else
                 {
                     OnDispose += ExecuteModule<Action>("puerts/dispose.mjs", "default");
                 }
-                if (!(Backend is BackendNodeJS)) 
+                if (!(Backend is BackendNodeJS))
                 {
                     ExecuteModule("puerts/polyfill.mjs");
                 }
@@ -230,11 +233,11 @@ namespace Puerts
                     ExecuteModule("puerts/nodepatch.mjs");
                 }
 
-                if(SupportCJS)
+                if (SupportCJS)
                 {
                     ExecuteModule("puerts/cjsload.mjs");
                     ExecuteModule("puerts/modular.mjs");
-                }                
+                }
 
 #if UNITY_EDITOR
                 if (OnJsEnvCreate != null) 
@@ -249,7 +252,7 @@ namespace Puerts
                 };
 #endif
                 this.debugPort = debugPort;
-            } 
+            }
             catch (Exception ex)
             {
                 Dispose();
@@ -260,14 +263,14 @@ namespace Puerts
 
         }
 
-        internal string ResolveModuleContent(string identifer, out string pathForDebug) 
+        internal string ResolveModuleContent(string identifer, out string pathForDebug)
         {
             pathForDebug = identifer;
-            if (!loader.FileExists(identifer)) 
+            if (!loader.FileExists(identifer))
             {
                 return null;
             }
-            if (loaderCanCheckESM ? 
+            if (loaderCanCheckESM ?
                 !((IModuleChecker)loader).IsESM(identifer) :
                 identifer.Length < 4 || identifer.EndsWith(".cjs")
             )
@@ -277,8 +280,8 @@ namespace Puerts
                     export default puerts.require('{0}');
 
                 ", identifer);
-            } 
-            else 
+            }
+            else
             {
                 return loader.ReadFile(identifer, out pathForDebug);
             }
@@ -293,7 +296,8 @@ namespace Puerts
         */
         public T ExecuteModule<T>(string specifier, string exportee)
         {
-            if (exportee == "" && typeof(T) != typeof(JSObject)) {
+            if (exportee == "" && typeof(T) != typeof(JSObject))
+            {
                 throw new Exception("T must be Puerts.JSObject when getting the module namespace");
             }
             if (ModuleExecutor == null)
@@ -307,7 +311,7 @@ namespace Puerts
                 ModuleExecutor = new GenericDelegate(ptr, this);
             }
             JSObject jso = ModuleExecutor.Func<string, JSObject>(specifier);
-            
+
             return jso.Get<T>(exportee);
         }
         public JSObject ExecuteModule(string specifier)
@@ -371,7 +375,7 @@ namespace Puerts
             PuertsDLL.ClearModuleCache(isolate, "");
         }
 
-        public static void ClearAllModuleCaches () 
+        public static void ClearAllModuleCaches()
         {
             lock (jsEnvs)
             {
@@ -473,7 +477,7 @@ namespace Puerts
             if (getter != null) GeneralGetterManager.RegisterGetter(type, getter);
             if (setter != null) GeneralSetterManager.RegisterSetter(type, setter);
         }
-        
+
         //use by BlittableCopy
         public int GetTypeId(Type type)
         {
@@ -521,7 +525,7 @@ namespace Puerts
                 PuertsDLL.ThrowException(isolate,
                     "registerTickHandler throw c# exception:" + e.Message + ",stack:" + e.StackTrace);
             }
-            
+
         }
 
         Type GetTypeFromJs(IntPtr isolate, IntPtr info, IntPtr self, int paramLen)
@@ -564,26 +568,28 @@ namespace Puerts
         {
             try
             {
-                if (paramLen < 3) {
+                if (paramLen < 3)
+                {
                     throw new Exception("invalid arguments length");
                 }
                 var csTypeJSValue = PuertsDLL.GetArgumentValue(info, 0);
-                if (PuertsDLL.GetJsValueType(isolate, csTypeJSValue, false) != JsValueType.NativeObject) {
+                if (PuertsDLL.GetJsValueType(isolate, csTypeJSValue, false) != JsValueType.NativeObject)
+                {
                     throw new Exception("the class must be a constructor");
                 }
                 Type type = StaticTranslate<Type>.Get(Index, isolate, NativeValueApi.GetValueFromArgument, csTypeJSValue, false);
                 string methodName = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 1), false);
-                
+
                 var genericArguments = new Type[paramLen - 2];
                 for (int i = 2; i < paramLen; i++)
                 {
                     var value = PuertsDLL.GetArgumentValue(info, i);
-                    if (PuertsDLL.GetJsValueType(isolate, value, false) != JsValueType.Function) 
+                    if (PuertsDLL.GetJsValueType(isolate, value, false) != JsValueType.Function)
                     {
                         throw new Exception("invalid Type for generic arguments " + (i - 2));
                     }
                     var argTypeId = PuertsDLL.GetTypeIdFromValue(isolate, value, false);
-                    if (argTypeId == -1) 
+                    if (argTypeId == -1)
                     {
                         throw new Exception("invalid Type for generic arguments " + (i - 2));
                     }
@@ -593,7 +599,7 @@ namespace Puerts
                 var callbackID = AddCallback(new GenericMethodWrap(methodName, this, type, genericArguments).Invoke);
                 PuertsDLL.ReturnCSharpFunctionCallback(isolate, info, StaticCallbacks.JsEnvCallbackWrap, callbackID);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 PuertsDLL.ThrowException(isolate, "GetGenericMethod throw c# exception:" + e.Message + ",stack:" + e.StackTrace);
             }
@@ -603,19 +609,23 @@ namespace Puerts
         {
             try
             {
-                if (paramLen < 2) {
+                if (paramLen < 2)
+                {
                     throw new Exception("invalid arguments length");
                 }
                 string className = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 0), false);
                 Type type = TypeRegister.GetType(className);
-                if ( type == null ) {
+                if (type == null)
+                {
                     PuertsDLL.ReturnBoolean(isolate, info, false);
-                } else {
+                }
+                else
+                {
                     string methodName = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 1), false);
                     PuertsDLL.ReturnBoolean(isolate, info, TypeRegister.AddPrivateMethod(isolate, type, methodName));
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 PuertsDLL.ThrowException(isolate, "AddPrivateMethod throw c# exception:" + e.Message + ",stack:" + e.StackTrace);
             }
@@ -625,14 +635,14 @@ namespace Puerts
             try
             {
                 Type type = GetTypeFromJs(isolate, info, self, paramLen);
-                
+
                 if (type != null)
                 {
                     int typeId = TypeManager.GetTypeId(isolate, type);
                     PuertsDLL.ReturnClass(isolate, info, typeId);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 PuertsDLL.ThrowException(isolate, "loadClass throw c# exception:" + e.Message + ",stack:" + e.StackTrace);
             }
@@ -776,7 +786,7 @@ namespace Puerts
             foreach (var fn in tickHandler)
             {
                 IntPtr resultInfo = PuertsDLL.InvokeJSFunction(fn, false);
-                if (resultInfo==IntPtr.Zero)
+                if (resultInfo == IntPtr.Zero)
                 {
                     var exceptionInfo = PuertsDLL.GetFunctionLastExceptionInfo(fn);
                     throw new Exception(exceptionInfo);
@@ -793,7 +803,7 @@ namespace Puerts
 #if THREAD_SAFE
             lock(this) {
 #endif
-                while (!PuertsDLL.InspectorTick(isolate)) { }
+            while (!PuertsDLL.InspectorTick(isolate)) { }
 #if THREAD_SAFE
             }
 #endif
@@ -809,32 +819,32 @@ namespace Puerts
         }
 #endif
 
-//         [MonoPInvokeCallback(typeof(LogCallback))]
-//         private static void LogCallback(string msg)
-//         {
-// #if PUERTS_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
-// #else
-//             UnityEngine.Debug.Log(msg);
-// #endif
-//         }
+        //         [MonoPInvokeCallback(typeof(LogCallback))]
+        //         private static void LogCallback(string msg)
+        //         {
+        // #if PUERTS_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
+        // #else
+        //             UnityEngine.Debug.Log(msg);
+        // #endif
+        //         }
 
-//         [MonoPInvokeCallback(typeof(LogCallback))]
-//         private static void LogWarningCallback(string msg)
-//         {
-// #if PUERTS_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
-// #else
-//             UnityEngine.Debug.Log(msg);
-// #endif
-//         }
+        //         [MonoPInvokeCallback(typeof(LogCallback))]
+        //         private static void LogWarningCallback(string msg)
+        //         {
+        // #if PUERTS_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
+        // #else
+        //             UnityEngine.Debug.Log(msg);
+        // #endif
+        //         }
 
-//         [MonoPInvokeCallback(typeof(LogCallback))]
-//         private static void LogErrorCallback(string msg)
-//         {
-// #if PUERTS_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
-// #else
-//             UnityEngine.Debug.Log(msg);
-// #endif
-//         }
+        //         [MonoPInvokeCallback(typeof(LogCallback))]
+        //         private static void LogErrorCallback(string msg)
+        //         {
+        // #if PUERTS_GENERAL || (UNITY_WSA && !UNITY_EDITOR)
+        // #else
+        //             UnityEngine.Debug.Log(msg);
+        // #endif
+        //         }
 
         ~JsEnv()
         {
@@ -954,7 +964,7 @@ namespace Puerts
                 {
                     if (enumerator.Current.Value <= 0) pendingRemovedList.Add(enumerator.Current.Key);
                 }
-                for(int i = 0; i  < pendingRemovedList.Count; ++i)
+                for (int i = 0; i < pendingRemovedList.Count; ++i)
                 {
                     var nativeJsFuncPtr = pendingRemovedList[i];
                     funcRefCount.Remove(nativeJsFuncPtr);
@@ -980,7 +990,7 @@ namespace Puerts
                 {
                     if (enumerator.Current.Value <= 0) pendingRemovedJsObjList.Add(enumerator.Current.Key);
                 }
-                for(int i = 0; i  < pendingRemovedJsObjList.Count; ++i)
+                for (int i = 0; i < pendingRemovedJsObjList.Count; ++i)
                 {
                     var nativeJsObjPtr = pendingRemovedJsObjList[i];
                     JSObjRefCount.Remove(nativeJsObjPtr);
