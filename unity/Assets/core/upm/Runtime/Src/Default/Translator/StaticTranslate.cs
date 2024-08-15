@@ -224,6 +224,18 @@ namespace Puerts
             return getValueApi.GetArrayBuffer(isolate, holder, isByRef);
         }
 
+        public static RawArrayBuffer GetRawArrayBuffer(int jsEnvIdx, IntPtr isolate, IGetValueFromJs getValueApi,
+            IntPtr holder, bool isByRef)
+        {
+            return getValueApi.GetRawArrayBuffer(isolate, holder, isByRef);
+        }
+
+        public static void PushRawArrayBuffer(int jsEnvIdx, IntPtr isolate, ISetValueToJs setValueApi, IntPtr holder,
+            RawArrayBuffer rawArrayBuffer)
+        {
+            setValueApi.SetRawArrayBuffer(isolate, holder, rawArrayBuffer);
+        }
+
         internal static void Init()
         {
             StaticTranslate<bool>.ReplaceDefault(PushBoolean, GetBoolean);
@@ -241,6 +253,7 @@ namespace Puerts
             StaticTranslate<string>.ReplaceDefault(PushString, GetString);
             // StaticTranslate<DateTime>.ReplaceDefault(PushDateTime, GetDateTime);
             StaticTranslate<ArrayBuffer>.ReplaceDefault(PushArrayBuffer, GetArrayBuffer);
+            StaticTranslate<RawArrayBuffer>.ReplaceDefault(PushRawArrayBuffer, GetRawArrayBuffer);
         }
     }
 }
