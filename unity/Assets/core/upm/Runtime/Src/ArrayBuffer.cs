@@ -12,6 +12,17 @@ using System.Reflection;
 
 namespace Puerts
 {
+    public class RawArrayBuffer
+    {
+        public IntPtr Ptr;
+        public int Length;
+        public RawArrayBuffer(IntPtr ptr, int length)
+        {
+            Ptr = ptr;
+            Length = length;
+        }
+    }
+
     public class ArrayBuffer
     {
         public byte[] Bytes;

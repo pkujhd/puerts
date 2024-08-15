@@ -45,6 +45,8 @@ namespace Puerts
         void SetNull(IntPtr isolate, IntPtr holder);
 
         void SetArrayBuffer(IntPtr isolate, IntPtr holder, ArrayBuffer arrayBuffer);
+        
+        void SetRawArrayBuffer(IntPtr isolate, IntPtr holder, RawArrayBuffer arrayBuffer);
     }
 
     public interface IGetValueFromJs
@@ -70,6 +72,8 @@ namespace Puerts
         IntPtr GetFunction(IntPtr isolate, IntPtr holder, bool isByRef);
 
         ArrayBuffer GetArrayBuffer(IntPtr isolate, IntPtr holder, bool isByRef);
+        
+        RawArrayBuffer GetRawArrayBuffer(IntPtr isolate, IntPtr holder, bool isByRef);
     }
 
     public class GetValueFromResultImpl : IGetValueFromJs
@@ -129,6 +133,12 @@ namespace Puerts
             int length;
             var ptr = PuertsDLL.GetArrayBufferFromResult(holder, out length);
             return new ArrayBuffer(ptr, length);
+        }
+
+        public RawArrayBuffer GetRawArrayBuffer(IntPtr isolate, IntPtr holder, bool isByRef)
+        {
+            var ptr = PuertsDLL.GetArrayBufferFromResult(holder, out var length);
+            return new RawArrayBuffer(ptr, length);
         }
     }
 
@@ -190,6 +200,12 @@ namespace Puerts
             var ptr = PuertsDLL.GetArrayBufferFromValue(isolate, holder, out length, isByRef);
             return new ArrayBuffer(ptr, length);
         }
+
+        public RawArrayBuffer GetRawArrayBuffer(IntPtr isolate, IntPtr holder, bool isByRef)
+        {
+            var ptr = PuertsDLL.GetArrayBufferFromValue(isolate, holder, out var length, isByRef);
+            return new RawArrayBuffer(ptr, length);
+        }
     }
 
     public class SetValueToResultImpl : ISetValueToJs
@@ -204,6 +220,11 @@ namespace Puerts
             {
                 PuertsDLL.ReturnArrayBuffer(isolate, holder, arrayBuffer.Bytes, arrayBuffer.Count);
             }
+        }
+
+        public void SetRawArrayBuffer(IntPtr isolate, IntPtr holder, RawArrayBuffer arrayBuffer)
+        {
+            throw new Exception("not implemented yet");
         }
 
         public void SetBigInt(IntPtr isolate, IntPtr holder, long number)
@@ -266,6 +287,11 @@ namespace Puerts
             }
         }
 
+        public void SetRawArrayBuffer(IntPtr isolate, IntPtr holder, RawArrayBuffer arrayBuffer)
+        {
+            throw new Exception("not implemented yet");
+        }
+
         public void SetBigInt(IntPtr isolate, IntPtr holder, long number)
         {
             PuertsDLL.SetBigIntToOutValue(isolate, holder, number);
@@ -324,6 +350,11 @@ namespace Puerts
             {
                 PuertsDLL.PushArrayBufferForJSFunction(holder, arrayBuffer.Bytes, arrayBuffer.Count);
             }
+        }
+
+        public void SetRawArrayBuffer(IntPtr isolate, IntPtr holder, RawArrayBuffer arrayBuffer)
+        {
+            throw new Exception("not implemented yet");
         }
 
         public void SetBigInt(IntPtr isolate, IntPtr holder, long number)

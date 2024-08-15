@@ -352,7 +352,7 @@ namespace Puerts
             // {
             //     mask = JsValueType.Date;
             // }
-            else if (type == typeof(ArrayBuffer))
+            else if (type == typeof(ArrayBuffer)|| type == typeof(RawArrayBuffer))
             {
                 mask = JsValueType.ArrayBuffer;
             }
