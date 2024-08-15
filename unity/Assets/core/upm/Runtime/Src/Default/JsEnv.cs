@@ -895,6 +895,8 @@ namespace Puerts
 
         Dictionary<IntPtr, int> funcRefCount = new Dictionary<IntPtr, int>();
         Dictionary<IntPtr, int> JSObjRefCount = new Dictionary<IntPtr, int>();
+        List<IntPtr> pendingRemovedList = new List<IntPtr>();
+        List<IntPtr> pendingRemovedJsObjList = new List<IntPtr>();
 
         internal void IncFuncRef(IntPtr nativeJsFuncPtr)
         {
@@ -921,6 +923,9 @@ namespace Puerts
             lock (funcRefCount)
             {
                 funcRefCount[nativeJsFuncPtr] = funcRefCount[nativeJsFuncPtr] - 1;
+                if ( funcRefCount[nativeJsFuncPtr] <= 0 ) {
+                    pendingRemovedList.Add(nativeJsFuncPtr);
+                }
             }
         }
 
@@ -949,58 +954,55 @@ namespace Puerts
             lock (JSObjRefCount)
             {
                 JSObjRefCount[nativeJSObjectPtr] = JSObjRefCount[nativeJSObjectPtr] - 1;
+                if ( JSObjRefCount[nativeJSObjectPtr] <= 0 ) {
+                    pendingRemovedJsObjList.Add(nativeJSObjectPtr);
+                }
             }
         }
-
-        List<IntPtr> pendingRemovedList = new List<IntPtr>();
 
         internal void ReleasePendingJSFunctions()
         {
             lock (funcRefCount)
             {
-                pendingRemovedList.Clear();
-                var enumerator = funcRefCount.GetEnumerator();
-                while (enumerator.MoveNext())
+                if ( pendingRemovedList.Count > 0 )
                 {
-                    if (enumerator.Current.Value <= 0) pendingRemovedList.Add(enumerator.Current.Key);
-                }
-                for (int i = 0; i < pendingRemovedList.Count; ++i)
-                {
-                    var nativeJsFuncPtr = pendingRemovedList[i];
-                    funcRefCount.Remove(nativeJsFuncPtr);
-                    if (!genericDelegateFactory.IsJsFunctionAlive(nativeJsFuncPtr))
+                    for(int i = 0; i  < pendingRemovedList.Count; ++i)
                     {
-                        genericDelegateFactory.RemoveGenericDelegate(nativeJsFuncPtr);
-                        PuertsDLL.ReleaseJSFunction(isolate, nativeJsFuncPtr);
+                        var nativeJsFuncPtr = pendingRemovedList[i];
+                        if (funcRefCount[nativeJsFuncPtr] <= 0) {
+                            funcRefCount.Remove(nativeJsFuncPtr);
+                            if (!genericDelegateFactory.IsJsFunctionAlive(nativeJsFuncPtr))
+                            {
+                                genericDelegateFactory.RemoveGenericDelegate(nativeJsFuncPtr);
+                                PuertsDLL.ReleaseJSFunction(isolate, nativeJsFuncPtr);
+                            }
+                        }
                     }
+                    pendingRemovedList.Clear();
                 }
-                pendingRemovedList.Clear();
             }
         }
-
-        List<IntPtr> pendingRemovedJsObjList = new List<IntPtr>();
 
         internal void ReleasePendingJSObjects()
         {
             lock (JSObjRefCount)
             {
-                pendingRemovedJsObjList.Clear();
-                var enumerator = JSObjRefCount.GetEnumerator();
-                while (enumerator.MoveNext())
+                if ( pendingRemovedJsObjList.Count > 0 )
                 {
-                    if (enumerator.Current.Value <= 0) pendingRemovedJsObjList.Add(enumerator.Current.Key);
-                }
-                for (int i = 0; i < pendingRemovedJsObjList.Count; ++i)
-                {
-                    var nativeJsObjPtr = pendingRemovedJsObjList[i];
-                    JSObjRefCount.Remove(nativeJsObjPtr);
-                    if (!jsObjectFactory.IsJsObjectAlive(nativeJsObjPtr))
+                    for(int i = 0; i  < pendingRemovedJsObjList.Count; ++i)
                     {
-                        jsObjectFactory.RemoveJSObject(nativeJsObjPtr);
-                        PuertsDLL.ReleaseJSObject(isolate, nativeJsObjPtr);
+                        var nativeJsObjPtr = pendingRemovedJsObjList[i];
+                        if (JSObjRefCount[nativeJsObjPtr] <= 0) {
+                            JSObjRefCount.Remove(nativeJsObjPtr);
+                            if (!jsObjectFactory.IsJsObjectAlive(nativeJsObjPtr))
+                            {
+                                jsObjectFactory.RemoveJSObject(nativeJsObjPtr);
+                                PuertsDLL.ReleaseJSObject(isolate, nativeJsObjPtr);
+                            }
+                        }
                     }
+                    pendingRemovedJsObjList.Clear();
                 }
-                pendingRemovedJsObjList.Clear();
             }
         }
 
