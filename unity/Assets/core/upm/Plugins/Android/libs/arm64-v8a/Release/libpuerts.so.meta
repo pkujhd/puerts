@@ -16,7 +16,7 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        Exclude Android: 1
+        Exclude Android: 0
         Exclude Editor: 1
         Exclude Linux64: 1
         Exclude OSXUniversal: 1
@@ -31,6 +31,7 @@ PluginImporter:
       settings:
         AndroidSharedLibraryType: Executable
         CPU: ARM64
+        Is16KbAligned: true
   - first:
       Any: 
     second:
@@ -61,13 +62,13 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        CPU: x86
+        CPU: None
   - first:
       Standalone: Win64
     second:
       enabled: 0
       settings:
-        CPU: x86_64
+        CPU: None
   - first:
       iPhone: iOS
     second:

@@ -31,6 +31,7 @@ PluginImporter:
       settings:
         AndroidSharedLibraryType: Executable
         CPU: ARMv7
+        Is16KbAligned: false
   - first:
       Any: 
     second:
@@ -49,13 +50,13 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: OSXUniversal
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: Win
     second:
