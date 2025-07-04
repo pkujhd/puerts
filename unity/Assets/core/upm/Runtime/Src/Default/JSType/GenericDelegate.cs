@@ -134,6 +134,11 @@ namespace Puerts
                 var refer = referKV.Value;
                 if (refer.IsAlive)
                 {
+                    if (null == refer.Target)
+                    {
+                        UnityEngine.Debug.LogError($"Puer Invalid GenericDelegate {refer.Target}");
+                        continue;
+                    }
                     (refer.Target as GenericDelegate).Close();
                 }
             }
