@@ -112,11 +112,11 @@ namespace Puerts
 
             if (externalRuntime != IntPtr.Zero)
             {
-                isolate = PuertsDLL.CreateJSEngineWithExternalEnv(externalRuntime, externalContext);
+                isolate = PuertsDLL.CreateJSEngineWithExternalEnv(externalRuntime, externalContext, jitless);
             }
             else
             {
-                isolate = PuertsDLL.CreateJSEngine();
+                isolate = PuertsDLL.CreateJSEngine(jitless);
             }
 
             if (isolate == IntPtr.Zero)
