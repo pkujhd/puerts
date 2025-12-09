@@ -70,7 +70,7 @@ namespace Puerts
         private JSFunctionCallback GenFieldGetter(Type type, FieldInfo field)
         {
 #if UNITY_EDITOR            
-            JsEnv.LogReflectWrap(definitionType, memberName);
+            JsEnv.LogReflectWrap(jsEnv.Idx, definitionType, memberName);
 #endif
             var translateFunc = jsEnv.GeneralSetterManager.GetTranslateFunc(field.FieldType);
             if (field.IsStatic)
@@ -93,7 +93,7 @@ namespace Puerts
         private JSFunctionCallback GenFieldSetter(Type type, FieldInfo field)
         {
 #if UNITY_EDITOR
-            JsEnv.LogReflectWrap(definitionType, memberName);
+            JsEnv.LogReflectWrap(jsEnv.Idx, definitionType, memberName);
 #endif
             var translateFunc = jsEnv.GeneralGetterManager.GetTranslateFunc(field.FieldType);
             var typeMask = GeneralGetterManager.GetJsTypeMask(field.FieldType);
@@ -172,7 +172,7 @@ namespace Puerts
                         new OverloadReflectionWrap(xetMethodInfo, jsEnv)
                     });
 #if UNITY_EDITOR
-                    JsEnv.LogReflectWrap(definitionType, memberName);
+                    JsEnv.LogReflectWrap(jsEnv.Idx, definitionType, memberName);
 #endif
                 }
 
@@ -202,7 +202,7 @@ namespace Puerts
                     );
 
 #if UNITY_EDITOR
-                    JsEnv.LogReflectWrap(definitionType, memberName);
+                    JsEnv.LogReflectWrap(jsEnv.Idx, definitionType, memberName);
 #endif
                 }
 

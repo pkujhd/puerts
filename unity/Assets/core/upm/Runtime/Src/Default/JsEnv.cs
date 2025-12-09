@@ -1130,7 +1130,7 @@ namespace Puerts
             }
             return false;
         }
-        public static void LogReflectWrap(Type type, string memberName)
+        public static void LogReflectWrap(int jsEnvIdx, Type type, string memberName)
         {
             if (!UnityEngine.Application.isPlaying)
             {
@@ -1148,7 +1148,7 @@ namespace Puerts
             {
                 return;
             }
-            JsEnv.jsEnvs[0].Eval($"console.error(\"[puerts reflect] type:{type.FullName} member:{memberName}\")");
+            JsEnv.jsEnvs[jsEnvIdx].Eval($"console.error(\"[puerts reflect] type:{type.FullName} member:{memberName}\")");
         }
 #endif
 
