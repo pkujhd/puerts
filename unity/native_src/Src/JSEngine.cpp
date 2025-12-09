@@ -101,7 +101,7 @@ namespace PUERTS_NAMESPACE
         FBackendEnv::GlobalPrepare();
 
         std::string Flags = "--no-harmony-top-level-await --stack_size=856";
-#if PUERTS_DEBUG
+#ifdef PUERTS_DEBUG
         Flags += " --expose-gc";
 #if PLATFORM_MAC
         Flags += " --jitless --no-expose-wasm";
