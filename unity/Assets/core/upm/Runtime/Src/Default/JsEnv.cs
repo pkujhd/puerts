@@ -510,8 +510,8 @@ namespace Puerts
         }
         void LoadJsCodeBytes(IntPtr isolate, IntPtr info, IntPtr self, int paramLen)
         {
-            var identifer = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 0), false);
-            var debugPathValue = PuertsDLL.GetArgumentValue(info, 1);
+            var identifer = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(isolate, info, 0), false);
+            var debugPathValue = PuertsDLL.GetArgumentValue(isolate, info, 1);
             string debugPath;
             var code = this.loader.ReadFileBytes(identifer, out debugPath);
             PuertsDLL.SetStringToOutValue(isolate, debugPathValue, debugPath);
@@ -674,12 +674,12 @@ namespace Puerts
                 if (paramLen < 2) {
                     throw new Exception("invalid arguments length");
                 }
-                string className = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 0), false);
+                string className = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(isolate, info, 0), false);
                 Type type = TypeRegister.GetType(className);
                 if ( type == null ) {
                     PuertsDLL.ReturnBoolean(isolate, info, false);
                 } else {
-                    string methodName = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(info, 1), false);
+                    string methodName = PuertsDLL.GetStringFromValue(isolate, PuertsDLL.GetArgumentValue(isolate, info, 1), false);
                     PuertsDLL.ReturnBoolean(isolate, info, TypeRegister.AddPrivateMethod(isolate, type, methodName));
                 }
             }
