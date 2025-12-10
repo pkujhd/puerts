@@ -671,6 +671,7 @@ target_link_libraries(puerts
 list(APPEND PUERTS_COMPILE_DEFINITIONS ${BACKEND_DEFINITIONS})
 
 target_compile_definitions (puerts PUBLIC ${PUERTS_COMPILE_DEFINITIONS})
+target_compile_definitions (puerts PRIVATE WITH_INSPECTOR)
 
 if (NOT WITHOUT_IL2CPP_OPTIMIZATION)
     target_compile_definitions (puerts PUBLIC WITH_IL2CPP_OPTIMIZATION)
