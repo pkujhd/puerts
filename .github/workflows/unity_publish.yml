@@ -43,10 +43,10 @@ jobs:
           backend: nodejs_16
 
   ios:
-    runs-on: macos-11
+    runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: BuildiOS
         uses: ./.github/workflows/composites/unity-build-plugins/ios/
         with:
