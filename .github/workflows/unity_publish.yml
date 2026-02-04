@@ -74,10 +74,10 @@ jobs:
           backend: nodejs_16
 
   osx:
-    runs-on: macos-11
+    runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: BuildOSX
         uses: ./.github/workflows/composites/unity-build-plugins/osx/
         with:
