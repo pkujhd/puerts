@@ -93,12 +93,6 @@ namespace puerts
         BackendEnv::GlobalPrepare();
 
         std::string Flags = "--no-harmony-top-level-await --stack_size=856";
-#if PUERTS_DEBUG
-        Flags += " --expose-gc";
-#if PLATFORM_MAC
-        Flags += " --jitless --no-expose-wasm";
-#endif
-#endif
 #if PLATFORM_IOS
         Flags += " --jitless --no-expose-wasm";
 #else
